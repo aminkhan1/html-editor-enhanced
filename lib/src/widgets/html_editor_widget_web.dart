@@ -1,15 +1,15 @@
-export 'dart:html';
-
 import 'dart:convert';
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
-import 'package:html_editor_enhanced/utils/utils.dart';
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
 import 'package:html_editor_enhanced/utils/shims/dart_ui.dart' as ui;
+import 'package:html_editor_enhanced/utils/utils.dart';
+
+export 'dart:html';
 
 /// The HTML Editor widget itself, for web (uses IFrameElement)
 class HtmlEditorWidget extends StatefulWidget {
@@ -206,9 +206,30 @@ class _HtmlEditorWidgetWebState extends State<HtmlEditorWidget> {
       });
     }
     var summernoteScripts = """
+      <style>
+      *{
+      font-family: B Nazanin;
+       direction: rtl;
+      }
+      p{
+      font-family: B Nazanin;
+       direction: rtl;
+      }
+      
+      .note-editor.note-airframe.fullscreen .note-editable, .note-editor.note-frame.fullscreen .note-editable {
+            background-color: #fff;
+            font-family: B Nazanin;
+            }
+      </style>
       <script type="text/javascript">
+      
+     document.body.setAttribute('dir', 'rtl');
+     document.body.setAttribute('font-family', 'B Nazanin');
+
+     
         \$(document).ready(function () {
           \$('#summernote-2').summernote({
+          fontNames: ['Arial', 'B Nazanin', 'Comic Sans MS', 'Courier New'],
             placeholder: "${widget.htmlEditorOptions.hint}",
             tabsize: 2,
             height: ${widget.otherOptions.height},
@@ -218,11 +239,20 @@ class _HtmlEditorWidgetWebState extends State<HtmlEditorWidget> {
             ${widget.htmlEditorOptions.customOptions}
             $summernoteCallbacks
           });
+          \$('#summernote-2').summernote('fontName', 'B Nazanin');
           
           \$('#summernote-2').on('summernote.change', function(_, contents, \$editable) {
             window.parent.postMessage(JSON.stringify({"view": "$createdViewId", "type": "toDart: onChangeContent", "contents": contents}), "*");
           });
+          
+          
+               var  bodyZ=  document.getElementsByTagName('body');
+console.log(bodyZ);
+
+
+
         });
+        
        
         window.parent.addEventListener('message', handleMessage, false);
         document.onselectionchange = onSelectionChange;
@@ -511,7 +541,11 @@ class _HtmlEditorWidgetWebState extends State<HtmlEditorWidget> {
               data['view'] == createdViewId) {
             if (widget.callbacks != null &&
                 widget.callbacks!.onChangeContent != null) {
-              widget.callbacks!.onChangeContent!.call(data['contents']);
+              String text = data['contents'];
+              if (text.startsWith('<p><br></p>')) {
+                text = text.replaceFirst('<p><br></p>', '');
+              }
+              widget.callbacks!.onChangeContent!.call(text);
             }
             if (widget.htmlEditorOptions.shouldEnsureVisible &&
                 Scrollable.of(context) != null) {
@@ -546,6 +580,7 @@ class _HtmlEditorWidgetWebState extends State<HtmlEditorWidget> {
           ? actualHeight
           : widget.otherOptions.height,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           widget.htmlToolbarOptions.toolbarPosition ==
                   ToolbarPosition.aboveEditor

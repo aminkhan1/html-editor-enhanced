@@ -32,6 +32,7 @@ dependencies:
   pedantic: ^1.11.1
   # plugin for @internal annotation
   meta: '>=1.0.0 <2.0.0'
+  record: ^4.4.4
 
 dev_dependencies:
   flutter_test:

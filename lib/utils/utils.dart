@@ -117,6 +117,7 @@ class ExpandIconDelegate extends SliverPersistentHeaderDelegate {
       width: _size,
       color: Theme.of(context).scaffoldBackgroundColor,
       child: IconButton(
+        splashRadius: 1,
         constraints: BoxConstraints(
           maxHeight: _size!,
           maxWidth: _size!,

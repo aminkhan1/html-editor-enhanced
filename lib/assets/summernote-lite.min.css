@@ -2,6 +2,10 @@
     display: none !important;
 }
 
+*{
+direction: rtl;
+}
+
 @font-face {
   font-family: summernote;
   font-style: normal;

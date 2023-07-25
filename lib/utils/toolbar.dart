@@ -49,7 +49,11 @@ class FontButtons extends Toolbar {
 
   List<Icon> getIcons1() {
     var icons = <Icon>[];
-    if (bold) icons.add(Icon(Icons.format_bold));
+    if (bold)
+      icons.add(Icon(
+        Icons.format_bold,
+        semanticLabel: 'بولد',
+      ));
     if (italic) icons.add(Icon(Icons.format_italic));
     if (underline) icons.add(Icon(Icons.format_underline));
     if (clearAll) icons.add(Icon(Icons.format_clear));
@@ -84,6 +88,7 @@ class ColorButtons extends Toolbar {
 }
 
 /// List group
+///
 class ListButtons extends Toolbar {
   final bool ul;
   final bool ol;
@@ -151,28 +156,37 @@ class InsertButtons extends Toolbar {
   final bool audio;
   final bool video;
   final bool otherFile;
+  final bool voice;
+  final bool pen;
   final bool table;
   final bool hr;
+  final VoidCallback? usePen;
 
   const InsertButtons({
+    this.usePen,
     this.link = true,
     this.picture = true,
     this.audio = true,
     this.video = true,
     this.otherFile = false,
+    this.voice = false,
+    this.pen = false,
     this.table = true,
     this.hr = true,
   });
 
+  void alaki() {}
   List<Icon> getIcons() {
     var icons = <Icon>[];
     if (link) icons.add(Icon(Icons.link));
+    if (pen) icons.add(Icon(Icons.edit));
     if (picture) icons.add(Icon(Icons.image_outlined));
     if (audio) icons.add(Icon(Icons.audiotrack_outlined));
     if (video) icons.add(Icon(Icons.videocam_outlined));
     if (otherFile) icons.add(Icon(Icons.attach_file));
     if (table) icons.add(Icon(Icons.table_chart_outlined));
     if (hr) icons.add(Icon(Icons.horizontal_rule));
+    if (voice) icons.add(Icon(Icons.keyboard_voice_rounded));
     return icons;
   }
 }
@@ -186,8 +200,10 @@ class OtherButtons extends Toolbar {
   final bool help;
   final bool copy;
   final bool paste;
+  Function() fullScreenAction;
 
-  const OtherButtons({
+  OtherButtons({
+    required this.fullScreenAction,
     this.fullscreen = true,
     this.codeview = true,
     this.undo = true,
@@ -199,7 +215,10 @@ class OtherButtons extends Toolbar {
 
   List<Icon> getIcons1() {
     var icons = <Icon>[];
-    if (fullscreen) icons.add(Icon(Icons.fullscreen));
+    if (fullscreen)
+      icons.add(Icon(
+        Icons.fullscreen,
+      ));
     if (codeview) icons.add(Icon(Icons.code));
     if (undo) icons.add(Icon(Icons.undo));
     if (redo) icons.add(Icon(Icons.redo));

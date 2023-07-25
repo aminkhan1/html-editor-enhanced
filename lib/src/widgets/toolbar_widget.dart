@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
@@ -9,6 +10,9 @@ import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:html_editor_enhanced/utils/utils.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
+import 'package:record/record.dart';
+
+import '../../utils/toolbar.dart';
 
 /// Toolbar widget class
 class ToolbarWidget extends StatefulWidget {
@@ -71,7 +75,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
   double _actualFontSizeSelectedItem = 16;
 
   /// Sets the selected item for the font units dropdown
-  String _fontSizeUnitSelectedItem = 'pt';
+  String _fontSizeUnitSelectedItem = 'px';
 
   /// Sets the selected item for the foreground color dialog
   Color _foreColorSelected = Colors.black;
@@ -165,13 +169,14 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
       });
     }
     //check the font name if it matches one of the predetermined fonts and update the toolbar
-    if (['Courier New', 'sans-serif', 'Times New Roman'].contains(fontName)) {
+    if (['B Nazanin', 'Courier New', 'sans-serif', 'Times New Roman,']
+        .contains(fontName)) {
       setState(mounted, this.setState, () {
         _fontNameSelectedItem = fontName;
       });
     } else {
       setState(mounted, this.setState, () {
-        _fontNameSelectedItem = 'sans-serif';
+        _fontNameSelectedItem = 'B Nazanin';
       });
     }
     //update the fore/back selected color if necessary
@@ -284,6 +289,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
             }
           }
         }
+
         if (t is ParagraphButtons) {
           for (var i = 0; i < _alignSelected.length; i++) {
             if (t.getIcons1()[i].icon == Icons.format_align_left) {
@@ -293,7 +299,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
               _alignSelected[i] = alignList[1] ?? false;
             }
             if (t.getIcons1()[i].icon == Icons.format_align_right) {
-              _alignSelected[i] = alignList[2] ?? false;
+              _alignSelected[i] = alignList[2] ?? true;
             }
             if (t.getIcons1()[i].icon == Icons.format_align_justify) {
               _alignSelected[i] = alignList[3] ?? false;
@@ -382,6 +388,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
           child: Opacity(
             opacity: _enabled ? 1 : 0.5,
             child: Container(
+              padding: EdgeInsets.zero,
               constraints: BoxConstraints(
                 maxHeight: _isExpanded
                     ? MediaQuery.of(context).size.height
@@ -402,6 +409,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                 height:
                                     widget.htmlToolbarOptions.toolbarItemHeight,
                                 child: IconButton(
+                                  splashRadius: 1,
                                   icon: Icon(
                                     _isExpanded
                                         ? Icons.expand_less
@@ -506,8 +514,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
               style: widget.htmlToolbarOptions.textStyle,
               items: [
                 CustomDropdownMenuItem(
-                    value: 'p',
-                    child: PointerInterceptor(child: Text('Normal'))),
+                    value: 'p', child: PointerInterceptor(child: Text('ساده'))),
                 CustomDropdownMenuItem(
                     value: 'blockquote',
                     child: PointerInterceptor(
@@ -517,7 +524,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                   left: BorderSide(
                                       color: Colors.grey, width: 3.0))),
                           padding: EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Text('Quote',
+                          child: Text('کامنت',
                               style: TextStyle(
                                   fontFamily: 'times', color: Colors.grey))),
                     )),
@@ -529,49 +536,49 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                               borderRadius: BorderRadius.circular(5),
                               color: Colors.grey),
                           padding: EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Text('Code',
+                          child: Text('کد',
                               style: TextStyle(
                                   fontFamily: 'courier', color: Colors.white))),
                     )),
                 CustomDropdownMenuItem(
                   value: 'h1',
                   child: PointerInterceptor(
-                      child: Text('Header 1',
+                      child: Text('تیتر 1',
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 32))),
                 ),
                 CustomDropdownMenuItem(
                   value: 'h2',
                   child: PointerInterceptor(
-                      child: Text('Header 2',
+                      child: Text('تیتر 2',
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 24))),
                 ),
                 CustomDropdownMenuItem(
                   value: 'h3',
                   child: PointerInterceptor(
-                      child: Text('Header 3',
+                      child: Text('تیتر 3',
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18))),
                 ),
                 CustomDropdownMenuItem(
                   value: 'h4',
                   child: PointerInterceptor(
-                      child: Text('Header 4',
+                      child: Text('تیتر 4',
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 16))),
                 ),
                 CustomDropdownMenuItem(
                   value: 'h5',
                   child: PointerInterceptor(
-                      child: Text('Header 5',
+                      child: Text('تیتر 5',
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 13))),
                 ),
                 CustomDropdownMenuItem(
                   value: 'h6',
                   child: PointerInterceptor(
-                      child: Text('Header 6',
+                      child: Text('تیتر 6',
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 11))),
                 ),
@@ -607,7 +614,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
       if (t is FontSettingButtons) {
         if (t.fontName) {
           toolbarChildren.add(Container(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.only(left: 3),
             height: widget.htmlToolbarOptions.toolbarItemHeight,
             decoration: !widget.htmlToolbarOptions.renderBorder
                 ? null
@@ -640,6 +647,13 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                         MediaQuery.of(context).size.height / 3,
                 style: widget.htmlToolbarOptions.textStyle,
                 items: [
+                  //['B Nazanin','Courier New', 'sans-serif', 'Times New Roman,']
+                  CustomDropdownMenuItem(
+                    value: 'B Nazanin',
+                    child: PointerInterceptor(
+                        child: Text('B Nazanin',
+                            style: TextStyle(fontFamily: 'B Nazanin'))),
+                  ),
                   CustomDropdownMenuItem(
                     value: 'Courier New',
                     child: PointerInterceptor(
@@ -1146,7 +1160,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: Text('Cancel'),
+                              child: Text('انصراف'),
                             ),
                             TextButton(
                                 onPressed: () {
@@ -1174,7 +1188,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                   }
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Reset to default color')),
+                                child: Text('برگشتن به حالت قبل')),
                             TextButton(
                               onPressed: () {
                                 if (t.getIcons()[index].icon ==
@@ -1205,7 +1219,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                 });
                                 Navigator.of(context).pop();
                               },
-                              child: Text('Set color'),
+                              child: Text('انجام شود'),
                             )
                           ],
                         ),
@@ -1758,6 +1772,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
               t.picture ||
               t.link ||
               t.hr ||
+              t.voice ||
               t.table)) {
         toolbarChildren.add(ToggleButtons(
           constraints: BoxConstraints.tightFor(
@@ -1797,7 +1812,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                         child: StatefulBuilder(builder:
                             (BuildContext context, StateSetter setState) {
                           return AlertDialog(
-                            title: Text('Insert Link'),
+                            title: Text('اضافه کردن لینک'),
                             scrollable: true,
                             content: Form(
                               key: formKey,
@@ -1805,7 +1820,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Text to display',
+                                    Text('متن نمایشی',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     SizedBox(height: 10),
@@ -1815,14 +1830,14 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                       textInputAction: TextInputAction.next,
                                       decoration: InputDecoration(
                                         border: OutlineInputBorder(),
-                                        hintText: 'Text',
+                                        hintText: 'متن',
                                       ),
                                       onSubmitted: (_) {
                                         urlFocus.requestFocus();
                                       },
                                     ),
                                     SizedBox(height: 20),
-                                    Text('URL',
+                                    Text('لینک',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     SizedBox(height: 10),
@@ -1832,7 +1847,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                       textInputAction: TextInputAction.done,
                                       decoration: InputDecoration(
                                         border: OutlineInputBorder(),
-                                        hintText: 'URL',
+                                        hintText: 'لینک',
                                       ),
                                       validator: (String? value) {
                                         if (value == null || value.isEmpty) {
@@ -1868,7 +1883,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                               openNewTab = !openNewTab;
                                             });
                                           },
-                                          child: Text('Open in new window',
+                                          child: Text('درصفحه جدید باز شود؟',
                                               style: TextStyle(
                                                   color: Theme.of(context)
                                                       .textTheme
@@ -1884,7 +1899,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Cancel'),
+                                child: Text('انصراف'),
                               ),
                               TextButton(
                                 onPressed: () async {
@@ -1911,7 +1926,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     Navigator.of(context).pop();
                                   }
                                 },
-                                child: Text('OK'),
+                                child: Text('افزودن'),
                               )
                             ],
                           );
@@ -1937,7 +1952,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                         child: StatefulBuilder(builder:
                             (BuildContext context, StateSetter setState) {
                           return AlertDialog(
-                            title: Text('Insert Image'),
+                            title: Text('افزودن تصویر '),
                             scrollable: true,
                             content: Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -1945,7 +1960,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                 children: [
                                   if (widget
                                       .htmlToolbarOptions.allowImagePicking)
-                                    Text('Select from files',
+                                    Text('انتخاب از فایل ها',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
                                   if (widget
@@ -1982,7 +1997,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                                 });
                                               }
                                             },
-                                            child: Text('Choose image',
+                                            child: Text('انتخاب از تصاویر',
                                                 style: TextStyle(
                                                     color: Theme.of(context)
                                                         .textTheme
@@ -2008,7 +2023,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     SizedBox(height: 20),
                                   if (widget
                                       .htmlToolbarOptions.allowImagePicking)
-                                    Text('URL',
+                                    Text('لینک',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
                                   if (widget
@@ -2020,7 +2035,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     textInputAction: TextInputAction.done,
                                     decoration: InputDecoration(
                                       border: OutlineInputBorder(),
-                                      hintText: 'URL',
+                                      hintText: 'لینک',
                                       errorText: validateFailed,
                                       errorMaxLines: 2,
                                     ),
@@ -2031,7 +2046,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Cancel'),
+                                child: Text('انصراف'),
                               ),
                               TextButton(
                                 onPressed: () async {
@@ -2040,14 +2055,14 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     setState(() {
                                       validateFailed = widget.htmlToolbarOptions
                                               .allowImagePicking
-                                          ? 'Please either choose an image or enter an image URL!'
-                                          : 'Please enter an image URL!';
+                                          ? 'لطفاً یا یک تصویر را انتخاب کنید یا یک لینک تصویر را وارد کنید!'
+                                          : 'لطفا لینک تصویر را وارد کنید!';
                                     });
                                   } else if (filename.text.isNotEmpty &&
                                       url.text.isNotEmpty) {
                                     setState(() {
                                       validateFailed =
-                                          'Please input either an image or an image URL, not both!';
+                                          'لطفاً یک تصویر یا یک URL تصویر، نه هر دو را وارد کنید!';
                                     });
                                   } else if (filename.text.isNotEmpty &&
                                       result?.files.single.bytes != null) {
@@ -2078,7 +2093,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     Navigator.of(context).pop();
                                   }
                                 },
-                                child: Text('OK'),
+                                child: Text('افزودن'),
                               )
                             ],
                           );
@@ -2087,6 +2102,15 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                     });
               }
             }
+            if (t.getIcons()[index].icon == Icons.edit) {
+              var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                      ?.call(ButtonType.edit, null, null) ??
+                  true;
+              if (proceed) {
+                t.usePen!();
+              }
+            }
+
             if (t.getIcons()[index].icon == Icons.audiotrack_outlined) {
               var proceed = await widget.htmlToolbarOptions.onButtonPressed
                       ?.call(ButtonType.audio, null, null) ??
@@ -2104,13 +2128,13 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                         child: StatefulBuilder(builder:
                             (BuildContext context, StateSetter setState) {
                           return AlertDialog(
-                            title: Text('Insert Audio'),
+                            title: Text('افزودن صدا'),
                             scrollable: true,
                             content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Select from files',
+                                  Text('انتخاب از فایل ها',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                   SizedBox(height: 10),
@@ -2142,7 +2166,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                               });
                                             }
                                           },
-                                          child: Text('Choose audio',
+                                          child: Text('انتخاب صدا',
                                               style: TextStyle(
                                                   color: Theme.of(context)
                                                       .textTheme
@@ -2164,7 +2188,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                         border: InputBorder.none,
                                       )),
                                   SizedBox(height: 20),
-                                  Text('URL',
+                                  Text('لینک',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                   SizedBox(height: 10),
@@ -2174,7 +2198,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     textInputAction: TextInputAction.done,
                                     decoration: InputDecoration(
                                       border: OutlineInputBorder(),
-                                      hintText: 'URL',
+                                      hintText: 'لینک',
                                       errorText: validateFailed,
                                       errorMaxLines: 2,
                                     ),
@@ -2185,7 +2209,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Cancel'),
+                                child: Text('انصراف'),
                               ),
                               TextButton(
                                 onPressed: () async {
@@ -2193,13 +2217,13 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                       url.text.isEmpty) {
                                     setState(() {
                                       validateFailed =
-                                          'Please either choose an audio file or enter an audio file URL!';
+                                          'لطفاً یا یک فایل صوتی انتخاب کنید یا آدرس فایل صوتی را وارد کنید!';
                                     });
                                   } else if (filename.text.isNotEmpty &&
                                       url.text.isNotEmpty) {
                                     setState(() {
                                       validateFailed =
-                                          'Please input either an audio file or an audio URL, not both!';
+                                          'لطفاً یک فایل صوتی یا URL صوتی را وارد کنید، نه هر دو را!';
                                     });
                                   } else if (filename.text.isNotEmpty &&
                                       result?.files.single.bytes != null) {
@@ -2230,7 +2254,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     Navigator.of(context).pop();
                                   }
                                 },
-                                child: Text('OK'),
+                                child: Text('افزودن'),
                               )
                             ],
                           );
@@ -2256,13 +2280,13 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                         child: StatefulBuilder(builder:
                             (BuildContext context, StateSetter setState) {
                           return AlertDialog(
-                            title: Text('Insert Video'),
+                            title: Text(' افزودن فیلم'),
                             scrollable: true,
                             content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Select from files',
+                                  Text('انتخاب از فایل ها',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                   SizedBox(height: 10),
@@ -2294,7 +2318,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                               });
                                             }
                                           },
-                                          child: Text('Choose video',
+                                          child: Text('انتخاب ویدیو ',
                                               style: TextStyle(
                                                   color: Theme.of(context)
                                                       .textTheme
@@ -2316,7 +2340,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                         border: InputBorder.none,
                                       )),
                                   SizedBox(height: 20),
-                                  Text('URL',
+                                  Text('لینک',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                   SizedBox(height: 10),
@@ -2326,7 +2350,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     textInputAction: TextInputAction.done,
                                     decoration: InputDecoration(
                                       border: OutlineInputBorder(),
-                                      hintText: 'URL',
+                                      hintText: 'لینک',
                                       errorText: validateFailed,
                                       errorMaxLines: 2,
                                     ),
@@ -2337,7 +2361,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Cancel'),
+                                child: Text('انصراف'),
                               ),
                               TextButton(
                                 onPressed: () async {
@@ -2345,13 +2369,13 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                       url.text.isEmpty) {
                                     setState(() {
                                       validateFailed =
-                                          'Please either choose a video or enter a video URL!';
+                                          'لطفاً یک ویدیو را انتخاب کنید یا لینک ویدیو را وارد کنید!';
                                     });
                                   } else if (filename.text.isNotEmpty &&
                                       url.text.isNotEmpty) {
                                     setState(() {
                                       validateFailed =
-                                          'Please input either a video or a video URL, not both!';
+                                          'لطفاً یک ویدیو یا یک لینک ویدیو وارد کنید، نه هر دو!';
                                     });
                                   } else if (filename.text.isNotEmpty &&
                                       result?.files.single.bytes != null) {
@@ -2382,7 +2406,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     Navigator.of(context).pop();
                                   }
                                 },
-                                child: Text('OK'),
+                                child: Text('افزودن'),
                               )
                             ],
                           );
@@ -2391,6 +2415,177 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                     });
               }
             }
+            if (t.getIcons()[index].icon == Icons.keyboard_voice_rounded) {
+              ///Todo
+              var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                      ?.call(ButtonType.voice, null, null) ??
+                  true;
+              if (proceed) {
+                Record record = Record();
+                bool isRecord = false;
+                int timerCount = 0;
+                var voice;
+
+                await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return PointerInterceptor(
+                        child: StatefulBuilder(builder:
+                            (BuildContext context, StateSetter setState) {
+                          return AlertDialog(
+                            title: Text('ضبط صدا'),
+                            scrollable: true,
+                            content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text('برای شروع دکمه را بزنید ',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  SizedBox(height: 10),
+                                  Row(
+                                    children: [
+                                      InkWell(
+                                        onTap: () async {
+                                          await record.hasPermission();
+                                          bool checkrecord =
+                                              await record.isRecording();
+                                          if (!isRecord && !checkrecord) {
+                                            await record.start(
+                                                path: 'aFullPath/myFile.m4a',
+                                                encoder:
+                                                    AudioEncoder.vorbisOgg);
+
+                                            setState(() {
+                                              isRecord = true;
+                                            });
+                                          } else {
+                                            voice = await record.stop();
+                                            setState(() {
+                                              isRecord = false;
+                                              timerCount = 0;
+                                            });
+                                          }
+                                          if (isRecord) {
+                                            Timer.periodic(Duration(seconds: 1),
+                                                (timer) {
+                                              if (!isRecord) {
+                                                timer.cancel();
+                                                timerCount = 0;
+                                              }
+                                              setState(() {
+                                                timerCount++;
+                                              });
+
+                                              if (timerCount >= 30) {
+                                                timer.cancel();
+                                                voice = record.stop();
+                                                timerCount = 0;
+                                                isRecord = false;
+                                              }
+                                            });
+                                          }
+                                        },
+                                        child: Container(
+                                          child: Icon(
+                                            isRecord
+                                                ? Icons.stop_rounded
+                                                : Icons.fiber_manual_record,
+                                            color: isRecord
+                                                ? Colors.red.shade800
+                                                : Colors.redAccent,
+                                          ),
+                                          decoration: BoxDecoration(
+                                              shape: BoxShape.rectangle,
+                                              color: Colors.grey.shade200,
+                                              borderRadius:
+                                                  BorderRadius.circular(2),
+                                              border: Border.all(
+                                                color: Colors.grey.shade300,
+                                              )),
+                                          height: 30,
+                                          width: 30,
+                                        ),
+                                      ),
+                                      Text(timerCount.toString()),
+                                    ],
+                                  ),
+                                  SizedBox(height: 20),
+                                  SizedBox(height: 10),
+                                  /*TextField(
+                                    controller: url,
+                                    focusNode: urlFocus,
+                                    textInputAction: TextInputAction.done,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      hintText: 'URL',
+                                      errorText: validateFailed,
+                                      errorMaxLines: 2,
+                                    ),
+                                  ),*/
+                                ]),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('انصراف'),
+                              ),
+                              TextButton(
+                                /*  onPressed: () async {
+                                  if (filename.text.isEmpty &&
+                                      url.text.isEmpty) {
+                                    setState(() {
+                                      validateFailed =
+                                      'Please either choose an audio file or enter an audio file URL!';
+                                    });
+                                  } else if (filename.text.isNotEmpty &&
+                                      url.text.isNotEmpty) {
+                                    setState(() {
+                                      validateFailed =
+                                      'Please input either an audio file or an audio URL, not both!';
+                                    });
+                                  } else if (filename.text.isNotEmpty &&
+                                      result?.files.single.bytes != null) {
+                                    var base64Data = base64
+                                        .encode(result!.files.single.bytes!);
+                                    var proceed = await widget
+                                        .htmlToolbarOptions
+                                        .mediaUploadInterceptor
+                                        ?.call(result!.files.single,
+                                        InsertFileType.audio) ??
+                                        true;
+                                    if (proceed) {
+                                      //injaa
+                                      widget.controller.insertHtml(
+                                          "<audio controls src='data:audio/${result!.files.single.extension};base64,$base64Data' data-filename='${result!.files.single.name}'></audio>");
+                                    }
+                                    Navigator.of(context).pop();
+                                  } else {
+                                    var proceed = await widget
+                                        .htmlToolbarOptions
+                                        .mediaLinkInsertInterceptor
+                                        ?.call(url.text,
+                                        InsertFileType.audio) ??
+                                        true;
+                                    if (proceed) {
+                                      widget.controller.insertHtml(
+                                          "<audio controls src='${url.text}'></audio>");
+                                    }
+                                    Navigator.of(context).pop();
+                                  }
+                                },*/
+                                onPressed: () {},
+                                child: Text('افزودن'),
+                              )
+                            ],
+                          );
+                        }),
+                      );
+                    });
+              }
+            }
+
             if (t.getIcons()[index].icon == Icons.attach_file) {
               var proceed = await widget.htmlToolbarOptions.onButtonPressed
                       ?.call(ButtonType.otherFile, null, null) ??
@@ -2408,13 +2603,13 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                         child: StatefulBuilder(builder:
                             (BuildContext context, StateSetter setState) {
                           return AlertDialog(
-                            title: Text('Insert File'),
+                            title: Text('افزودن فایل'),
                             scrollable: true,
                             content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Select from files',
+                                  Text('انتخاب از فایل ها  ',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                   SizedBox(height: 10),
@@ -2446,7 +2641,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                               });
                                             }
                                           },
-                                          child: Text('Choose file',
+                                          child: Text('انتخاب از فایل',
                                               style: TextStyle(
                                                   color: Theme.of(context)
                                                       .textTheme
@@ -2468,7 +2663,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                         border: InputBorder.none,
                                       )),
                                   SizedBox(height: 20),
-                                  Text('URL',
+                                  Text('لینک',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                   SizedBox(height: 10),
@@ -2478,7 +2673,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     textInputAction: TextInputAction.done,
                                     decoration: InputDecoration(
                                       border: OutlineInputBorder(),
-                                      hintText: 'URL',
+                                      hintText: 'لینک',
                                       errorText: validateFailed,
                                       errorMaxLines: 2,
                                     ),
@@ -2489,7 +2684,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Cancel'),
+                                child: Text('انصراف'),
                               ),
                               TextButton(
                                 onPressed: () {
@@ -2497,13 +2692,13 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                       url.text.isEmpty) {
                                     setState(() {
                                       validateFailed =
-                                          'Please either choose a file or enter a file URL!';
+                                          'لطفاً یا یک فایل را انتخاب کنید یا یک لینک فایل را وارد کنید!';
                                     });
                                   } else if (filename.text.isNotEmpty &&
                                       url.text.isNotEmpty) {
                                     setState(() {
                                       validateFailed =
-                                          'Please input either a file or a file URL, not both!';
+                                          'لطفاً یک فایل یا لینک فایل را وارد کنید، نه هر دو را!';
                                     });
                                   } else if (filename.text.isNotEmpty &&
                                       result?.files.single.bytes != null) {
@@ -2517,7 +2712,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     Navigator.of(context).pop();
                                   }
                                 },
-                                child: Text('OK'),
+                                child: Text('افزودن'),
                               )
                             ],
                           );
@@ -2540,7 +2735,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                         child: StatefulBuilder(builder:
                             (BuildContext context, StateSetter setState) {
                           return AlertDialog(
-                            title: Text('Insert Table'),
+                            title: Text('افزودن جدول'),
                             scrollable: true,
                             content: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -2568,7 +2763,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Cancel'),
+                                child: Text('انصراف'),
                               ),
                               TextButton(
                                 onPressed: () async {
@@ -2583,7 +2778,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                   }
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('OK'),
+                                child: Text('افزودن'),
                               )
                             ],
                           );
@@ -2639,6 +2834,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                             updateStatus) ??
                     true;
                 if (proceed) {
+                  t.fullScreenAction();
                   widget.controller.setFullScreen();
                   updateStatus();
                 }
@@ -2681,7 +2877,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                           child: StatefulBuilder(builder:
                               (BuildContext context, StateSetter setState) {
                             return AlertDialog(
-                              title: Text('Help'),
+                              title: Text('راهنما'),
                               scrollable: true,
                               content: Container(
                                 height: MediaQuery.of(context).size.height / 2,
